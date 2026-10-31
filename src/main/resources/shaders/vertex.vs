@@ -3,9 +3,11 @@
 in vec3 position;
 in vec2 textureCoord;
 
-out vec2 fragTextureCoords;
+out vec2 fragTextureCoord;
+
+uniform mat4 transformationMatrix;
 
 void main() {
-    gl_Position = vec4(position, 1.0);
-    fragTextureCoords = textureCoord;
+    gl_Position = transformationMatrix * vec4(position, 1.0);
+    fragTextureCoord = textureCoord;
 }

@@ -1,12 +1,10 @@
 package org.opus.test;
 
+import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 import org.opus.Launcher;
-import org.opus.core.ILogic;
-import org.opus.core.ObjectLoader;
-import org.opus.core.RenderManager;
-import org.opus.core.WindowManager;
+import org.opus.core.*;
 import org.opus.core.entity.Model;
 import org.opus.core.entity.Texture;
 
@@ -19,7 +17,7 @@ public class TestGame implements ILogic {
         private final ObjectLoader loader;
         private final WindowManager window;
 
-        private Model model;
+        private Entity entity;
 
         public TestGame() {
                 render = new RenderManager();
@@ -50,8 +48,9 @@ public class TestGame implements ILogic {
                     1, 0
                 };
 
-                model = loader.loadModel(vertices, textureCoords,indices);
+                Model model = loader.loadModel(vertices, textureCoords,indices);
                 model.setTexture(new Texture(loader.loadTexture("textures/grassblock.png")));
+                entity = new Entity(model, new Vector3f(1, 0, 0), new Vector3f(0, 0, 0), 1);
         }
 
         @Override
@@ -73,6 +72,11 @@ public class TestGame implements ILogic {
                 } else if (colour <= 0) {
                         colour = 0.0f;
                 }
+
+                if(entity.getPos().x < -1.5f) {
+                        entity.getPos().x = 1.5f;
+                }
+                entity.getPos().x -= 0.01f;
         }
 
         @Override
@@ -83,7 +87,7 @@ public class TestGame implements ILogic {
                 }
 
                 window.setClearColour(colour, colour, colour, 0.0f);
-                render.render(model);
+                render.render(entity);
         }
 
         @Override
