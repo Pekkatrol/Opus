@@ -27,6 +27,7 @@ public class TestGame implements ILogic {
         private float lightAngle;
         private DirectionalLight directionalLight;
         private PointLight pointLight;
+        private SpotLight spotLight;
 
         public TestGame() {
                 render = new RenderManager();
@@ -49,10 +50,17 @@ public class TestGame implements ILogic {
 
                 float lightIntensity = 1.0f;
 
+                // point light
                 Vector3f  lightPosition = new Vector3f(0, 0, -3.2f);
                 Vector3f lightColour = new Vector3f(1, 1, 1);
                 pointLight = new PointLight(lightColour, lightPosition, lightIntensity, 0, 0, 1);
 
+                //spot light
+                Vector3f coneDir = new Vector3f(0, 0, 1);
+                float cutoff = (float) Math.cos(Math.toRadians(180));
+                spotLight = new SpotLight(new PointLight(lightColour, new Vector3f(0, 0, 1f), lightIntensity, 0, 0, 1), coneDir, cutoff);
+
+                //directional light
                 lightPosition = new Vector3f(-1, -10, 0);
                 lightColour = new Vector3f(1, 1, 1);
                 directionalLight = new DirectionalLight(lightColour, lightPosition, lightIntensity);
@@ -88,6 +96,15 @@ public class TestGame implements ILogic {
 
                 if (window.isKeyPressed(GLFW.GLFW_KEY_P)) {
                         pointLight.getPosition().x -= 0.1f;
+                }
+
+                float lightPos = spotLight.getPointLight().getPosition().z;
+                if (window.isKeyPressed(GLFW.GLFW_KEY_N)) {
+                        spotLight.getPointLight().getPosition().z = lightPos + 0.1f;
+                }
+
+                if (window.isKeyPressed(GLFW.GLFW_KEY_M)) {
+                        spotLight.getPointLight().getPosition().z = lightPos - 0.1f;
                 }
         }
 
@@ -131,7 +148,7 @@ public class TestGame implements ILogic {
 
         @Override
         public void render() {
-                render.render(entity, camera, directionalLight, pointLight);
+                render.render(entity, camera, directionalLight, pointLight, spotLight);
         }
 
         @Override
