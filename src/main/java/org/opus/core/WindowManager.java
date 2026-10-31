@@ -8,10 +8,10 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
 
+import static org.opus.core.utils.Consts.*;
+
 public class WindowManager {
-        public static final float FOV = (float) Math.toRadians(60);
-        public static final float Z_NEAR = 0.01f;
-        public static final float Z_FAR = 1000f;
+
 
         private final String title;
         private int width;
@@ -149,7 +149,7 @@ public class WindowManager {
                 return height;
         }
 
-        public long getWindow() {
+        public long getWindowHandle() {
                 return window;
         }
 

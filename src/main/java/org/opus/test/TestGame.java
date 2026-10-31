@@ -1,5 +1,6 @@
 package org.opus.test;
 
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
@@ -8,9 +9,12 @@ import org.opus.core.*;
 import org.opus.core.entity.Model;
 import org.opus.core.entity.Texture;
 
+import static org.opus.core.utils.Consts.CAMERA_STEP;
+import static org.opus.core.utils.Consts.MOUSE_SENSITIVITY;
+
 public class TestGame implements ILogic {
 
-        private static final float CAMERA_MOVE_SPEED = 0.05f;
+
         private final RenderManager render;
         private final ObjectLoader loader;
         private final WindowManager window;
@@ -114,11 +118,19 @@ public class TestGame implements ILogic {
         }
 
         @Override
-        public void update() {
+        public void update(MouseInput mouseInput) {
                 camera.movePosition(
-                    cameraInc.x * CAMERA_MOVE_SPEED,
-                    cameraInc.y * CAMERA_MOVE_SPEED,
-                    cameraInc.z * CAMERA_MOVE_SPEED);
+                    cameraInc.x * CAMERA_STEP,
+                    cameraInc.y * CAMERA_STEP,
+                    cameraInc.z * CAMERA_STEP);
+
+                if (mouseInput.isRightButtonPress()) {
+                        Vector2f rotVec = mouseInput.getDispVec();
+                        camera.moveRotation(
+                            rotVec.x * MOUSE_SENSITIVITY,
+                            rotVec.y * MOUSE_SENSITIVITY,
+                            0);
+                }
 
                 entity.incRotation(0.0f, 0.5f, 0.0f);
         }
