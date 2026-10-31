@@ -5,6 +5,7 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.system.MemoryStack;
+import org.opus.core.entity.Material;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +26,7 @@ public class ShaderManager {
                 uniforms = new HashMap<>();
         }
 
-        void createUniforms(String uniformName) throws Exception {
+        void createUniform(String uniformName) throws Exception {
                 int uniformLocation = GL20.glGetUniformLocation(programeID, uniformName);
                 if (uniformLocation < 0) {
                         throw new Exception("Could not find uniform " + uniformName);
@@ -33,7 +34,15 @@ public class ShaderManager {
                 uniforms.put(uniformName, uniformLocation);
         }
 
-        public void setUniforms(String uniformName, Matrix4f value) {
+        public void createMaterialUniform(String uniformName) throws Exception {
+                createUniform(uniformName + ".ambient");
+                createUniform(uniformName + ".diffuse");
+                createUniform(uniformName + ".specular");
+                createUniform(uniformName + ".hasTexture");
+                createUniform(uniformName + ".reflectance");
+        }
+
+        public void setUniform(String uniformName, Matrix4f value) {
                 try (MemoryStack stack = MemoryStack.stackPush()) {
                         GL20.glUniformMatrix4fv(uniforms.get(uniformName), false, value.get(stack.mallocFloat(16)));
                 }
@@ -55,11 +64,19 @@ public class ShaderManager {
                 GL20.glUniform1f(uniforms.get(uniformName), res);
         }
 
-        public void setUniforms(String uniformName, int value) {
+        public void setUniform(String uniformName, Material material) {
+                setUniform(uniformName + ".ambient", material.getAmbientColour());
+                setUniform(uniformName + ".diffuse", material.getDiffuseColour());
+                setUniform(uniformName + ".specular", material.getSpecularColour());
+                setUniform(uniformName + ".hasTexture", material.hasTexture() ? 1 : 0);
+                setUniform(uniformName + ".reflectance", material.getReflectance());
+        }
+
+        public void setUniform(String uniformName, int value) {
                 GL20.glUniform1i(uniforms.get(uniformName), value);
         }
 
-        public void setUniforms(String uniformName, float value) {
+        public void setUniform(String uniformName, float value) {
                 GL20.glUniform1f(uniforms.get(uniformName), value);
         }
 

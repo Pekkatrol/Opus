@@ -90,7 +90,7 @@ public class ObjectLoader {
 
                 int[] indicesArr = indices.stream().mapToInt((Integer v) -> v).toArray();
 
-                return loadModel(verticesArr, textureCoordArr, indicesArr);
+                return loadModel(verticesArr, textureCoordArr, normalArr, indicesArr);
         }
 
         private static void processVertex(int pos, int textureCoord, int normal, List<Vector2f> textureCoordList,
@@ -131,11 +131,12 @@ public class ObjectLoader {
         }
 
 
-        public Model loadModel(float[] vertices, float[] textureCoords, int[] indices) {
+        public Model loadModel(float[] vertices, float[] textureCoords, float[] normals, int[] indices) {
                 int id = createVAO();
                 storeIndicesBuffer(indices);
                 storeDataInAttribList(0, 3, vertices);
                 storeDataInAttribList(1, 2, textureCoords);
+                storeDataInAttribList(2, 3, normals);
                 unbind();
                 return new Model(id, indices.length);
         }

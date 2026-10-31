@@ -3,7 +3,6 @@ package org.opus.test;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.opengl.GL11;
 import org.opus.Launcher;
 import org.opus.core.*;
 import org.opus.core.entity.Model;
@@ -36,7 +35,7 @@ public class TestGame implements ILogic {
                 render.init();
 
                 Model model = loader.loadOBJModel("/models/bunny.obj");
-                model.setTexture(new Texture(loader.loadTexture("textures/grassblock.png")));
+                model.setTexture(new Texture(loader.loadTexture("textures/grassblock.png")), 1.0f);
                 entity = new Entity(model, new Vector3f(0, 0, -5), new Vector3f(0, 0, 0), 1);
         }
 
@@ -80,17 +79,11 @@ public class TestGame implements ILogic {
                             0);
                 }
 
-                entity.incRotation(0.0f, 0.5f, 0.0f);
+                entity.incRotation(0.0f, 0.25f, 0.0f);
         }
 
         @Override
         public void render() {
-                if (window.isResize()) {
-                        GL11.glViewport(0, 0, window.getWidth(), window.getHeight());
-                        window.setResize(true);
-                }
-
-                window.setClearColour(0.0f, 0.0f, 0.0f, 0.0f);
                 render.render(entity, camera);
         }
 
