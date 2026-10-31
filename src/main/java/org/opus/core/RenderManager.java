@@ -6,10 +6,12 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.opus.Launcher;
 import org.opus.core.entity.Model;
+import org.opus.core.lighting.DirectionalLight;
 import org.opus.core.utils.Transformation;
 import org.opus.core.utils.Utils;
 
 import static org.opus.core.utils.Consts.AMBIENT_LIGHT;
+import static org.opus.core.utils.Consts.SPECULAR_POWER;
 
 public class RenderManager {
 
@@ -31,9 +33,11 @@ public class RenderManager {
                 shader.createUniform("viewMatrix");
                 shader.createUniform("ambientLight");
                 shader.createMaterialUniform("material");
+                shader.createUniform("specularPower");
+                shader.createDirectionalLightUniform("directionalLight");
         }
 
-        public void render(Entity entity, Camera camera) {
+        public void render(Entity entity, Camera camera, DirectionalLight directionalLight) {
                 clear();
 
                 if (window.isResize()) {
@@ -48,6 +52,8 @@ public class RenderManager {
                 shader.setUniform("viewMatrix", Transformation.getViewMatrix(camera));
                 shader.setUniform("material", entity.getModel().getMaterial());
                 shader.setUniform("ambientLight", AMBIENT_LIGHT);
+                shader.setUniform("specularPower", SPECULAR_POWER);
+                shader.setDirectionalLightUniform("directionalLight", directionalLight);
                 GL30.glBindVertexArray(entity.getModel().getId());
                 GL20.glEnableVertexAttribArray(0);
                 GL20.glEnableVertexAttribArray(1);

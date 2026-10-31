@@ -5,8 +5,10 @@ import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 import org.opus.Launcher;
 import org.opus.core.*;
+import org.opus.core.entity.Material;
 import org.opus.core.entity.Model;
 import org.opus.core.entity.Texture;
+import org.opus.core.lighting.DirectionalLight;
 
 import static org.opus.core.utils.Consts.CAMERA_STEP;
 import static org.opus.core.utils.Consts.MOUSE_SENSITIVITY;
@@ -22,21 +24,32 @@ public class TestGame implements ILogic {
         private Camera camera;
         Vector3f cameraInc;
 
+        private float lightAngle;
+        private DirectionalLight directionalLight;
+
         public TestGame() {
                 render = new RenderManager();
                 window = Launcher.getWindow();
                 loader = new ObjectLoader();
                 camera = new Camera();
                 cameraInc = new Vector3f(0, 0, 0);
+                lightAngle = -90;
+
         }
 
         @Override
         public void init() throws Exception {
                 render.init();
 
+
                 Model model = loader.loadOBJModel("/models/bunny.obj");
                 model.setTexture(new Texture(loader.loadTexture("textures/grassblock.png")), 1.0f);
                 entity = new Entity(model, new Vector3f(0, 0, -5), new Vector3f(0, 0, 0), 1);
+
+                float lightIntensity = 0.0f;
+                Vector3f  lightPosition = new Vector3f(-1, -10, 0);
+                Vector3f lightColour = new Vector3f(1, 1, 1);
+                directionalLight = new DirectionalLight(lightColour, lightPosition, lightIntensity);
         }
 
         @Override
@@ -79,12 +92,32 @@ public class TestGame implements ILogic {
                             0);
                 }
 
-                entity.incRotation(0.0f, 0.25f, 0.0f);
+                //entity.incRotation(0.0f, 0.25f, 0.0f);
+                lightAngle += 0.5f;
+                if (lightAngle > 90) {
+                        directionalLight.setIntensity(0);
+                        if (lightAngle >= 360) {
+                                lightAngle = -90;
+                        }
+                } else if (lightAngle <= -90 || lightAngle >= 80) {
+                        float factor = 1 - (Math.abs(lightAngle) - 80) / 10.0f;
+                        directionalLight.setIntensity(factor);
+                        directionalLight.getColour().y = Math.max(factor, 0.9f);
+                        directionalLight.getColour().z = Math.max(factor, 0.5f);
+                } else {
+                        directionalLight.setIntensity(1);
+                        directionalLight.getColour().x = 1;
+                        directionalLight.getColour().y = 1;
+                        directionalLight.getColour().z = 1;
+                }
+                double angRad = Math.toRadians(lightAngle);
+                directionalLight.getDirection().x = (float) Math.sin(angRad);
+                directionalLight.getDirection().y = (float) Math.cos(angRad);
         }
 
         @Override
         public void render() {
-                render.render(entity, camera);
+                render.render(entity, camera, directionalLight);
         }
 
         @Override
