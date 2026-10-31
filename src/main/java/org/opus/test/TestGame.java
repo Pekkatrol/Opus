@@ -4,8 +4,10 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 import org.opus.Launcher;
 import org.opus.core.ILogic;
+import org.opus.core.ObjectLoader;
 import org.opus.core.RenderManager;
 import org.opus.core.WindowManager;
+import org.opus.core.entity.Model;
 
 public class TestGame implements ILogic {
 
@@ -13,16 +15,31 @@ public class TestGame implements ILogic {
         private float colour = 0.0f;
 
         private final RenderManager render;
+        private final ObjectLoader loader;
         private final WindowManager window;
+
+        private Model model;
 
         public TestGame() {
                 render = new RenderManager();
                 window = Launcher.getWindow();
+                loader = new ObjectLoader();
         }
 
         @Override
         public void init() throws Exception {
                 render.init();
+
+                float[] verticies = {
+                    -0.5f, 0.5f, 0f,
+                    -0.5f, -0.5f, 0f,
+                    0.5f, -0.5f, 0f,
+                    0.5f, -0.5f, 0f,
+                    0.5f, 0.5f, 0f,
+                    -0.5f, 0.5f, 0f
+                };
+
+                model = loader.loadModel(verticies);
         }
 
         @Override
@@ -54,11 +71,12 @@ public class TestGame implements ILogic {
                 }
 
                 window.setClearColour(colour, colour, colour, 0.0f);
-                render.clear();
+                render.render(model);
         }
 
         @Override
         public void cleanup() {
                 render.cleanup();
+                loader.cleanup();
         }
 }
