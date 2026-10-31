@@ -2,20 +2,28 @@ package org.opus;
 
 
 import org.lwjgl.Version;
+import org.opus.core.EngineManager;
 import org.opus.core.WindowManager;
+
+import static org.opus.core.utils.Consts.TITLE;
 
 public class Launcher {
 
-    static void main(String[] args) {
-            System.out.println(Version.getVersion());
+        private static WindowManager window;
+        private static EngineManager engine;
 
-            WindowManager window = new WindowManager("Opus", 1600, 900, false);
-            window.init();
+         static void main(String[] args) {
+                window = new WindowManager(TITLE, 1600, 900, false);
+                engine = new EngineManager();
+                try {
+                        engine.start();
+                } catch (Exception e) {
+                        e.printStackTrace();
+                }
 
-            while (!window.windowShouldClose()) {
-                    window.update();
-            }
+        }
 
-            window.cleanup();
-    }
+        public static WindowManager getWindow() {
+                return window;
+        }
 }
