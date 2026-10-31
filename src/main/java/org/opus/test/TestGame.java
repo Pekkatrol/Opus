@@ -8,6 +8,7 @@ import org.opus.core.ObjectLoader;
 import org.opus.core.RenderManager;
 import org.opus.core.WindowManager;
 import org.opus.core.entity.Model;
+import org.opus.core.entity.Texture;
 
 public class TestGame implements ILogic {
 
@@ -30,13 +31,11 @@ public class TestGame implements ILogic {
         public void init() throws Exception {
                 render.init();
 
-                float[] verticies = {
-                    -0.5f, 0.5f, 0f,
+                float[] vertices = {
+                    -0.5f,  0.5f, 0f,
                     -0.5f, -0.5f, 0f,
                     0.5f, -0.5f, 0f,
-                    0.5f, -0.5f, 0f,
-                    0.5f, 0.5f, 0f,
-                    -0.5f, 0.5f, 0f
+                    0.5f,  0.5f, 0f,
                 };
 
                 int[] indices = {
@@ -44,7 +43,15 @@ public class TestGame implements ILogic {
                     3, 1, 2
                 };
 
-                model = loader.loadModel(verticies, indices);
+                float[] textureCoords = {
+                    0, 0,
+                    0, 1,
+                    1, 1,
+                    1, 0
+                };
+
+                model = loader.loadModel(vertices, textureCoords,indices);
+                model.setTexture(new Texture(loader.loadTexture("textures/grassblock.png")));
         }
 
         @Override
