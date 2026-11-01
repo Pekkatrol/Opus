@@ -10,11 +10,11 @@ public class Entity {
         private Vector3f rotation;
         private float scale;
 
-        public Entity(Model model, Vector3f rotation, Vector3f pos, float scale) {
+        public Entity(Model model, Vector3f pos, Vector3f rotation, float scale) {
                 this.model = model;
-                this.scale = scale;
-                this.rotation = rotation;
                 this.pos = pos;
+                this.rotation = rotation;
+                this.scale = scale;
         }
 
         public void incPos(float x, float y, float z) {
