@@ -28,6 +28,10 @@ public class Material {
                 this(DEFAULT_COLOUR, DEFAULT_COLOUR, DEFAULT_COLOUR, 0, texture);
         }
 
+        public Material(Texture texture, float reflectance) {
+                this(DEFAULT_COLOUR, DEFAULT_COLOUR, DEFAULT_COLOUR, reflectance, texture);
+        }
+
         public Material(Vector4f colour, float reflectance, Texture texture) {
                 this(colour, colour, colour, reflectance, texture);
         }

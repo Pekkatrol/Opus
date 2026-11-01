@@ -7,7 +7,7 @@ import org.opus.core.ShaderManager;
 import org.opus.core.SpotLight;
 import org.opus.core.WindowManager;
 import org.opus.core.entity.Entity;
-import org.opus.core.entity.Model;
+import org.opus.core.entity.terrain.Terrain;
 import org.opus.core.lighting.DirectionalLight;
 import org.opus.core.lighting.PointLight;
 
@@ -20,15 +20,18 @@ import static org.opus.core.utils.Consts.SPECULAR_POWER;
 public class RenderManager {
 
         private final WindowManager window;
-        private EntityRender entityRenderer;
+        private EntityRenderer entityRenderer;
+        private TerrainRenderer terrainRenderer;
 
         public RenderManager() {
                 window = Launcher.getWindow();
         }
 
         public void init() throws Exception {
-                entityRenderer = new EntityRender();
+                entityRenderer = new EntityRenderer();
+                terrainRenderer = new TerrainRenderer();
                 entityRenderer.init();
+                terrainRenderer.init();
 
         }
 
@@ -50,6 +53,7 @@ public class RenderManager {
                 }
 
                 entityRenderer.render(camera, pointLights, spotLights, directionalLight);
+                terrainRenderer.render(camera, pointLights, spotLights, directionalLight);
         }
 
         public void processEntity(Entity entity) {
@@ -63,11 +67,16 @@ public class RenderManager {
                 }
         }
 
+        public void processTerrain(Terrain terrain) {
+                terrainRenderer.getTerrains().add(terrain);
+        }
+
         public void clear() {
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         }
 
         public void cleanup() {
                 entityRenderer.cleanup();
+                terrainRenderer.cleanup();
         }
 }
