@@ -36,11 +36,11 @@ public class RenderManager {
                 shader.createMaterialUniform("material");
                 shader.createUniform("specularPower");
                 shader.createDirectionalLightUniform("directionalLight");
-                shader.createPointLight("pointLight");
-                shader.createSpotLight("spotLight");
+                shader.createPointLightListUniform("pointLights", 5);
+                shader.createSpotLightListUniform("spotLights", 5);
         }
 
-        public void render(Entity entity, Camera camera, DirectionalLight directionalLight, PointLight pointLight, SpotLight spotLight) {
+        public void render(Entity entity, Camera camera, DirectionalLight directionalLight, PointLight[] pointLights, SpotLight[] spotLights) {
                 clear();
 
                 if (window.isResize()) {
@@ -57,8 +57,10 @@ public class RenderManager {
                 shader.setUniform("ambientLight", AMBIENT_LIGHT);
                 shader.setUniform("specularPower", SPECULAR_POWER);
                 shader.setUniform("directionalLight", directionalLight);
-                shader.setUniform("pointLight", pointLight);
-                shader.setUniform("spotLight", spotLight);
+                shader.setUniform("pointLights", pointLights);
+                shader.setUniform("spotLights", spotLights);
+
+
                 GL30.glBindVertexArray(entity.getModel().getId());
                 GL20.glEnableVertexAttribArray(0);
                 GL20.glEnableVertexAttribArray(1);

@@ -26,8 +26,8 @@ public class TestGame implements ILogic {
 
         private float lightAngle;
         private DirectionalLight directionalLight;
-        private PointLight pointLight;
-        private SpotLight spotLight;
+        private PointLight[] pointLights;
+        private SpotLight[] spotLights;
 
         public TestGame() {
                 render = new RenderManager();
@@ -51,19 +51,24 @@ public class TestGame implements ILogic {
                 float lightIntensity = 1.0f;
 
                 // point light
-                Vector3f  lightPosition = new Vector3f(0, 0, -3.2f);
+                Vector3f  lightPosition = new Vector3f(-0.5f, -0.5f, -3.2f);
                 Vector3f lightColour = new Vector3f(1, 1, 1);
-                pointLight = new PointLight(lightColour, lightPosition, lightIntensity, 0, 0, 1);
+                PointLight pointLight = new PointLight(lightColour, lightPosition, lightIntensity, 0, 0, 1);
 
                 //spot light
                 Vector3f coneDir = new Vector3f(0, 0, 1);
                 float cutoff = (float) Math.cos(Math.toRadians(180));
-                spotLight = new SpotLight(new PointLight(lightColour, new Vector3f(0, 0, 1f), lightIntensity, 0, 0, 1), coneDir, cutoff);
+                SpotLight spotLight = new SpotLight(new PointLight(lightColour, new Vector3f(0, 0, 1f), lightIntensity, 0, 0, 1), coneDir, cutoff);
 
+                SpotLight spotLight1 = new SpotLight(pointLight, coneDir, cutoff);
+                spotLight1.getPointLight().setPosition(new Vector3f(0.5f, 0.5f, -3.6f));
                 //directional light
                 lightPosition = new Vector3f(-1, -10, 0);
                 lightColour = new Vector3f(1, 1, 1);
                 directionalLight = new DirectionalLight(lightColour, lightPosition, lightIntensity);
+
+                pointLights = new PointLight[]{pointLight};
+                spotLights = new SpotLight[]{spotLight, spotLight1};
         }
 
         @Override
@@ -91,20 +96,20 @@ public class TestGame implements ILogic {
                 }
 
                 if (window.isKeyPressed(GLFW.GLFW_KEY_O)) {
-                       pointLight.getPosition().x += 0.1f;
+                       pointLights[0].getPosition().x += 0.1f;
                 }
 
                 if (window.isKeyPressed(GLFW.GLFW_KEY_P)) {
-                        pointLight.getPosition().x -= 0.1f;
+                        pointLights[0].getPosition().x -= 0.1f;
                 }
 
-                float lightPos = spotLight.getPointLight().getPosition().z;
+                float lightPos = spotLights[0].getPointLight().getPosition().z;
                 if (window.isKeyPressed(GLFW.GLFW_KEY_N)) {
-                        spotLight.getPointLight().getPosition().z = lightPos + 0.1f;
+                        spotLights[0].getPointLight().getPosition().z = lightPos + 0.1f;
                 }
 
                 if (window.isKeyPressed(GLFW.GLFW_KEY_M)) {
-                        spotLight.getPointLight().getPosition().z = lightPos - 0.1f;
+                        spotLights[0].getPointLight().getPosition().z = lightPos - 0.1f;
                 }
         }
 
@@ -124,6 +129,7 @@ public class TestGame implements ILogic {
                 }
 
                 //entity.incRotation(0.0f, 0.25f, 0.0f);
+
                 lightAngle += 0.5f;
                 if (lightAngle > 90) {
                         directionalLight.setIntensity(0);
@@ -148,7 +154,7 @@ public class TestGame implements ILogic {
 
         @Override
         public void render() {
-                render.render(entity, camera, directionalLight, pointLight, spotLight);
+                render.render(entity, camera, directionalLight, pointLights, spotLights);
         }
 
         @Override

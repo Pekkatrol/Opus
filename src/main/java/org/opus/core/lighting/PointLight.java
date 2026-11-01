@@ -47,4 +47,8 @@ public class PointLight {
         public Vector3f getColour() {
                 return colour;
         }
+
+        public void setPosition(Vector3f position) {
+                this.position = position;
+        }
 }
