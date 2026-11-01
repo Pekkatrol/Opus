@@ -29,7 +29,7 @@ public class ShaderManager {
                 uniforms = new HashMap<>();
         }
 
-        void createUniform(String uniformName) throws Exception {
+        public void createUniform(String uniformName) throws Exception {
                 int uniformLocation = GL20.glGetUniformLocation(programeID, uniformName);
                 if (uniformLocation < 0) {
                         throw new Exception("Could not find uniform " + uniformName);

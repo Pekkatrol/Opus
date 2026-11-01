@@ -5,10 +5,12 @@ import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 import org.opus.Launcher;
 import org.opus.core.*;
+import org.opus.core.entity.Entity;
 import org.opus.core.entity.Model;
 import org.opus.core.entity.Texture;
 import org.opus.core.lighting.DirectionalLight;
 import org.opus.core.lighting.PointLight;
+import org.opus.core.rendering.RenderManager;
 
 import java.util.ArrayList;
 import java.util.List;

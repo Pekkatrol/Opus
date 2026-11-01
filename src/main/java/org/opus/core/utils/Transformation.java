@@ -3,9 +3,7 @@ package org.opus.core.utils;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.opus.core.Camera;
-import org.opus.core.Entity;
-
-import java.util.Vector;
+import org.opus.core.entity.Entity;
 
 public class Transformation {
 

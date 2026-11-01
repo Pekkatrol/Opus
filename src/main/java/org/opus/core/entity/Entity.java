@@ -1,7 +1,6 @@
-package org.opus.core;
+package org.opus.core.entity;
 
 import org.joml.Vector3f;
-import org.opus.core.entity.Model;
 
 public class Entity {
 
