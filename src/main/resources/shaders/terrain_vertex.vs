@@ -17,5 +17,5 @@ void main() {
     gl_Position = projectionMatrix * viewMatrix * worldPos;
     fragNormal = normalize(worldPos).xyz;
     fragPos = worldPos.xyz;
-    fragTextureCoord = textureCoord / 2.5;
+    fragTextureCoord = textureCoord;
 }

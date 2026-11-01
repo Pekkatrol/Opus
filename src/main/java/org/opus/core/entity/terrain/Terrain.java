@@ -13,11 +13,15 @@ public class Terrain {
 
         private Vector3f position;
         private Model model;
+        private TerrainTexture blendMap;
+        private BlendMapTerrain blendMapTerrain;
 
-        public Terrain(Vector3f position, ObjectLoader loader, Material material) {
+        public Terrain(Vector3f position, ObjectLoader loader, Material material, BlendMapTerrain blendMapTerrain, TerrainTexture blendMap) {
                 this.position = position;
                 this.model = generateTerrain(loader);
                 this.model.setMaterial(material);
+                this.blendMapTerrain = blendMapTerrain;
+                this.blendMap = blendMap;
         }
 
         private Model generateTerrain(ObjectLoader loader) {
@@ -36,8 +40,8 @@ public class Terrain {
                                 normals[vertexPointer * 3] = 0;
                                 normals[vertexPointer * 3 + 1] = 1;
                                 normals[vertexPointer * 3 + 2] = 0;
-                                textureCoords[vertexPointer * 2] = j / (VERTEX_COUNT - 1.0f) * SIZE;
-                                textureCoords[vertexPointer * 2 + 1] = i / (VERTEX_COUNT - 1.0f) * SIZE;
+                                textureCoords[vertexPointer * 2] = j / (VERTEX_COUNT - 1.0f);
+                                textureCoords[vertexPointer * 2 + 1] = i / (VERTEX_COUNT - 1.0f);
                                 vertexPointer++;
                         }
                 }
@@ -74,5 +78,13 @@ public class Terrain {
 
         public Texture getTexture() {
                 return model.getTexture();
+        }
+
+        public TerrainTexture getBlendMap() {
+                return blendMap;
+        }
+
+        public BlendMapTerrain getBlendMapTerrain() {
+                return blendMapTerrain;
         }
 }

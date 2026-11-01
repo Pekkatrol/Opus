@@ -2,11 +2,14 @@ package org.opus.test;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFW;
 import org.opus.Launcher;
 import org.opus.core.*;
 import org.opus.core.entity.*;
+import org.opus.core.entity.terrain.BlendMapTerrain;
 import org.opus.core.entity.terrain.Terrain;
+import org.opus.core.entity.terrain.TerrainTexture;
 import org.opus.core.lighting.DirectionalLight;
 import org.opus.core.lighting.PointLight;
 import org.opus.core.rendering.RenderManager;
@@ -46,8 +49,19 @@ public class TestGame implements ILogic {
                 Model model = loader.loadOBJModel("/models/cube.obj");
                 model.setTexture(new Texture(loader.loadTexture("textures/grassblock.png")), 1.0f);
 
-                Terrain terrain = new Terrain(new Vector3f(0, 1, -800), loader, new Material(new Texture(loader.loadTexture("textures/terrain.png")), 0.1f));
-                Terrain terrain2 = new Terrain(new Vector3f(-800, 1, -800), loader, new Material(new Texture(loader.loadTexture("textures/flowers.png")), 0.1f));
+                TerrainTexture backgroundTexture = new TerrainTexture(loader.loadTexture("textures/terrain.png"));
+                TerrainTexture redTexture = new TerrainTexture(loader.loadTexture("textures/flowers.png"));
+                TerrainTexture greenTexture = new TerrainTexture(loader.loadTexture("textures/stone.png"));
+                TerrainTexture blueTexture = new TerrainTexture(loader.loadTexture("textures/dirt.png"));
+                TerrainTexture blendMap = new TerrainTexture(loader.loadTexture("textures/blendMap.png"));
+
+                BlendMapTerrain blendMapTerrain = new BlendMapTerrain(backgroundTexture, redTexture, greenTexture, blueTexture);
+
+
+                Terrain terrain = new Terrain(new Vector3f(0, 1, -800), loader, new Material(
+                    new Vector4f(0.0f, 0.0f, 0.0f, 0.0f), 0.1f), blendMapTerrain, blendMap);
+                Terrain terrain2 = new Terrain(new Vector3f(-800, 1, -800), loader, new Material(
+                    new Vector4f(0.0f, 0.0f, 0.0f, 0.0f), 0.1f), blendMapTerrain, blendMap);
                 sceneManager.addTerrain(terrain);
                 sceneManager.addTerrain(terrain2);
 
