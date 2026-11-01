@@ -10,6 +10,10 @@ import org.opus.core.entity.Texture;
 import org.opus.core.lighting.DirectionalLight;
 import org.opus.core.lighting.PointLight;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 import static org.opus.core.utils.Consts.CAMERA_STEP;
 import static org.opus.core.utils.Consts.MOUSE_SENSITIVITY;
 
@@ -20,7 +24,7 @@ public class TestGame implements ILogic {
         private final ObjectLoader loader;
         private final WindowManager window;
 
-        private Entity entity;
+        private List<Entity> entities;
         private Camera camera;
         Vector3f cameraInc;
 
@@ -43,10 +47,20 @@ public class TestGame implements ILogic {
         public void init() throws Exception {
                 render.init();
 
-
-                Model model = loader.loadOBJModel("/models/bunny.obj");
+                Model model = loader.loadOBJModel("/models/cube.obj");
                 model.setTexture(new Texture(loader.loadTexture("textures/grassblock.png")), 1.0f);
-                entity = new Entity(model, new Vector3f(0, 0, -5), new Vector3f(0, 0, 0), 1);
+
+                entities = new ArrayList<>();
+                Random rnd = new Random();
+                for (int i = 0; i < 200; i++) {
+                        float x = rnd.nextFloat() * 100 - 50;
+                        float y = rnd.nextFloat() * 100 - 50;
+                        float z = rnd.nextFloat() * -300;
+                        entities.add(new Entity(model, new Vector3f(x, y, z),
+                            new Vector3f(rnd.nextFloat() * 180, rnd.nextFloat() * 180, 0), 1));
+                }
+
+                entities.add(new Entity(model, new Vector3f(0, 0, -2f), new Vector3f(0, 0, 0), 1));
 
                 float lightIntensity = 1.0f;
 
@@ -150,11 +164,15 @@ public class TestGame implements ILogic {
                 double angRad = Math.toRadians(lightAngle);
                 directionalLight.getDirection().x = (float) Math.sin(angRad);
                 directionalLight.getDirection().y = (float) Math.cos(angRad);
+
+                for (Entity entity : entities) {
+                        render.processEntity(entity);
+                }
         }
 
         @Override
         public void render() {
-                render.render(entity, camera, directionalLight, pointLights, spotLights);
+                render.render(camera, directionalLight, pointLights, spotLights);
         }
 
         @Override
