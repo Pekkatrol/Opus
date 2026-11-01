@@ -7,6 +7,7 @@ import org.opus.core.ShaderManager;
 import org.opus.core.SpotLight;
 import org.opus.core.WindowManager;
 import org.opus.core.entity.Entity;
+import org.opus.core.entity.SceneManager;
 import org.opus.core.entity.terrain.Terrain;
 import org.opus.core.lighting.DirectionalLight;
 import org.opus.core.lighting.PointLight;
@@ -44,16 +45,19 @@ public class RenderManager {
 
         }
 
-        public void render(Camera camera, DirectionalLight directionalLight, PointLight[] pointLights, SpotLight[] spotLights) {
+        public void render(Camera camera, SceneManager scene) {
                 clear();
 
                 if (window.isResize()) {
                         GL11.glViewport(0, 0, window.getWidth(), window.getHeight());
-                        window.setResize(true);
+                        window.setResize(false);
                 }
 
-                entityRenderer.render(camera, pointLights, spotLights, directionalLight);
-                terrainRenderer.render(camera, pointLights, spotLights, directionalLight);
+                GL11.glEnable(GL11.GL_CULL_FACE);
+                GL11.glCullFace(GL11.GL_BACK);
+                entityRenderer.render(camera, scene.getPointLights(), scene.getSpotLights(), scene.getDirectionalLight());
+                GL11.glDisable(GL11.GL_CULL_FACE);
+                terrainRenderer.render(camera, scene.getPointLights(), scene.getSpotLights(), scene.getDirectionalLight());
         }
 
         public void processEntity(Entity entity) {
