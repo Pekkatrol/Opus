@@ -1,21 +1,20 @@
 package org.opus;
 
 
-import org.lwjgl.Version;
-import org.opus.core.EngineManager;
-import org.opus.core.WindowManager;
-import org.opus.test.TestGame;
+import org.opus.engine.EngineManager;
+import org.opus.engine.WindowManager;
+import org.opus.game.Game;
 
-import static org.opus.core.utils.Consts.TITLE;
+import static org.opus.utils.Consts.TITLE;
 
 public class Launcher {
 
         private static WindowManager window;
-        private static TestGame game;
+        private static Game game;
 
          static void main(String[] args) {
                 window = new WindowManager(TITLE, 1600, 900, false);
-                game = new TestGame();
+                game = new Game();
                 EngineManager engine = new EngineManager();
                 try {
                         engine.start();
@@ -29,7 +28,7 @@ public class Launcher {
                 return window;
         }
 
-        public static TestGame getGame() {
+        public static Game getGame() {
                 return game;
         }
 }
