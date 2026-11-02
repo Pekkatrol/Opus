@@ -16,11 +16,20 @@ import org.opus.world.World;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.opus.utils.Consts.RENDER_DISTANCE;
+import static org.opus.utils.Consts.SKY;
+
 public class ChunkRenderer {
+
+        // Limite de nouveaux meshes par image, pour éviter les saccades
+        private static final int MAX_NEW_MESHES_PER_FRAME = 4;
 
         private final WindowManager window;
         private final Map<Chunk, Mesh> meshes = new HashMap<>();
         private final Vector3f offset = new Vector3f();
+        private final Vector3f fogColour = new Vector3f(SKY[0], SKY[1], SKY[2]);
+        private final float fogEnd = (RENDER_DISTANCE - 1) * Chunk.SIZE;
+        private final float fogStart = fogEnd * 0.5f;
         private ShaderManager shader;
         private int texture;
 
@@ -37,30 +46,55 @@ public class ChunkRenderer {
                 shader.createUniform("projectionMatrix");
                 shader.createUniform("viewMatrix");
                 shader.createUniform("chunkOffset");
+                shader.createUniform("fogColour");
+                shader.createUniform("fogStart");
+                shader.createUniform("fogEnd");
 
                 texture = TextureLoader.load("/textures/blocks.png");
         }
 
         public void render(Camera camera, World world) {
-                // Reconstruit uniquement les chunks modifiés
-                for (Chunk chunk : world.getChunks()) {
-                        if (chunk.isDirty()) {
-                                Mesh old = meshes.remove(chunk);
-                                if (old != null) {
-                                        old.cleanup();
-                                }
-                                Mesh mesh = ChunkMesher.build(world, chunk);
-                                if (mesh != null) {
-                                        meshes.put(chunk, mesh);
-                                }
-                                chunk.setDirty(false);
+                // Libère les meshes des chunks déchargés
+                for (Chunk chunk : world.pollRemovedChunks()) {
+                        Mesh old = meshes.remove(chunk);
+                        if (old != null) {
+                                old.cleanup();
                         }
+                }
+
+                // Reconstruit les chunks modifiés ou nouveaux, une fois leurs 4 voisins chargés.
+                // Un chunk déjà dessiné (modification d'un bloc) est reconstruit tout de suite.
+                int budget = MAX_NEW_MESHES_PER_FRAME;
+                for (Chunk chunk : world.getChunks()) {
+                        if (!chunk.isDirty() || !world.hasAllNeighbours(chunk)) {
+                                continue;
+                        }
+                        boolean hasMesh = meshes.containsKey(chunk);
+                        if (!hasMesh) {
+                                if (budget == 0) {
+                                        continue;
+                                }
+                                budget--;
+                        }
+
+                        Mesh old = meshes.remove(chunk);
+                        if (old != null) {
+                                old.cleanup();
+                        }
+                        Mesh mesh = ChunkMesher.build(world, chunk);
+                        if (mesh != null) {
+                                meshes.put(chunk, mesh);
+                        }
+                        chunk.setDirty(false);
                 }
 
                 shader.bind();
                 shader.setUniform("textureSampler", 0);
                 shader.setUniform("projectionMatrix", window.updateProjectionMatrix());
                 shader.setUniform("viewMatrix", createViewMatrix(camera));
+                shader.setUniform("fogColour", fogColour);
+                shader.setUniform("fogStart", fogStart);
+                shader.setUniform("fogEnd", fogEnd);
 
                 GL13.glActiveTexture(GL13.GL_TEXTURE0);
                 GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);

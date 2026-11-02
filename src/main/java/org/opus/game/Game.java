@@ -13,13 +13,18 @@ import org.opus.player.Raycast;
 import org.opus.render.RenderManager;
 import org.opus.world.Block;
 import org.opus.world.Chunk;
+import org.opus.world.ChunkManager;
 import org.opus.world.World;
+import org.opus.world.WorldGenerator;
 
 import static org.opus.utils.Consts.MOUSE_SENSITIVITY;
+import static org.opus.utils.Consts.RENDER_DISTANCE;
+import static org.opus.utils.Consts.SKY;
 
 public class Game implements ILogic {
 
         private static final float REACH = 6f;
+        private static final long SEED = 20261102L;
 
         private final RenderManager render;
         private final WindowManager window;
@@ -28,6 +33,7 @@ public class Game implements ILogic {
         private final Vector3f moveInput;
         private final Vector3f lookDir;
         private final World world;
+        private final ChunkManager chunkManager;
 
         private Raycast.Hit target;
         private byte selectedBlock = Block.GRASS;
@@ -45,6 +51,7 @@ public class Game implements ILogic {
                 moveInput = new Vector3f(0, 0, 0);
                 lookDir = new Vector3f();
                 world = new World();
+                chunkManager = new ChunkManager(world, new WorldGenerator(SEED), RENDER_DISTANCE);
         }
 
         @Override
@@ -52,30 +59,8 @@ public class Game implements ILogic {
                 render.init();
                 window.setCursorCaptured(true);
 
-                // Terrain de test : 4 x 4 chunks, collines en sinus, herbe / terre / pierre
-                for (int cx = -2; cx < 2; cx++) {
-                        for (int cz = -2; cz < 2; cz++) {
-                                Chunk chunk = world.createChunk(cx, cz);
-                                for (int x = 0; x < Chunk.SIZE; x++) {
-                                        for (int z = 0; z < Chunk.SIZE; z++) {
-                                                int wx = cx * Chunk.SIZE + x;
-                                                int wz = cz * Chunk.SIZE + z;
-                                                int height = 20 + (int) (4 * Math.sin(wx * 0.1) + 4 * Math.cos(wz * 0.1));
-                                                for (int y = 0; y < height; y++) {
-                                                        byte id;
-                                                        if (y == height - 1) {
-                                                                id = Block.GRASS;
-                                                        } else if (y >= height - 4) {
-                                                                id = Block.DIRT;
-                                                        } else {
-                                                                id = Block.STONE;
-                                                        }
-                                                        chunk.set(x, y, z, id);
-                                                }
-                                        }
-                                }
-                        }
-                }
+                // Génère le monde autour du point de départ
+                chunkManager.loadAround(0, 0);
 
                 // Apparition sur le bloc le plus haut en (0, 0)
                 int y = Chunk.HEIGHT - 1;
@@ -161,6 +146,9 @@ public class Game implements ILogic {
                 player.update(world, camera.getRotation().y, moveInput.x, moveInput.z, moveInput.y, jump);
                 syncCamera();
 
+                // Charge et décharge les chunks selon la position du joueur
+                chunkManager.update(player.getPosition().x, player.getPosition().z);
+
                 target = null;
                 if (inMenu) {
                         return;
@@ -192,7 +180,7 @@ public class Game implements ILogic {
 
         @Override
         public void render() {
-                window.setClearColour(0.47f, 0.73f, 1.0f, 1f);
+                window.setClearColour(SKY[0], SKY[1], SKY[2], 1f);
                 render.render(camera, world, target, !inMenu);
         }
 

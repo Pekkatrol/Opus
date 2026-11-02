@@ -1,12 +1,16 @@
 package org.opus.world;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class World {
 
         private final Map<Long, Chunk> chunks = new HashMap<>();
+        private final List<Chunk> removedChunks = new ArrayList<>();
 
         private static long key(int cx, int cz) {
                 return ((long) cx << 32) | (cz & 0xFFFFFFFFL);
@@ -25,6 +29,29 @@ public class World {
                 markDirty(cx, cz - 1);
                 markDirty(cx, cz + 1);
                 return chunk;
+        }
+
+        public void removeChunk(Chunk chunk) {
+                if (chunks.remove(key(chunk.getChunkX(), chunk.getChunkZ())) != null) {
+                        removedChunks.add(chunk);
+                }
+        }
+
+        // Chunks déchargés depuis le dernier appel (le rendu libère leurs meshes)
+        public List<Chunk> pollRemovedChunks() {
+                if (removedChunks.isEmpty()) {
+                        return Collections.emptyList();
+                }
+                List<Chunk> result = new ArrayList<>(removedChunks);
+                removedChunks.clear();
+                return result;
+        }
+
+        public boolean hasAllNeighbours(Chunk chunk) {
+                int cx = chunk.getChunkX();
+                int cz = chunk.getChunkZ();
+                return getChunk(cx - 1, cz) != null && getChunk(cx + 1, cz) != null
+                    && getChunk(cx, cz - 1) != null && getChunk(cx, cz + 1) != null;
         }
 
         // Coordonnées du monde
