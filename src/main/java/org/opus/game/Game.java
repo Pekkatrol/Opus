@@ -16,6 +16,9 @@ import org.opus.world.Chunk;
 import org.opus.world.ChunkManager;
 import org.opus.world.World;
 import org.opus.world.WorldGenerator;
+import org.opus.world.WorldStorage;
+
+import java.nio.file.Path;
 
 import static org.opus.utils.Consts.MOUSE_SENSITIVITY;
 import static org.opus.utils.Consts.RENDER_DISTANCE;
@@ -33,6 +36,7 @@ public class Game implements ILogic {
         private final Vector3f moveInput;
         private final Vector3f lookDir;
         private final World world;
+        private final WorldStorage storage;
         private final ChunkManager chunkManager;
 
         private Raycast.Hit target;
@@ -51,7 +55,8 @@ public class Game implements ILogic {
                 moveInput = new Vector3f(0, 0, 0);
                 lookDir = new Vector3f();
                 world = new World();
-                chunkManager = new ChunkManager(world, new WorldGenerator(SEED), RENDER_DISTANCE);
+                storage = new WorldStorage(Path.of("saves", "world-" + SEED));
+                chunkManager = new ChunkManager(world, new WorldGenerator(SEED), storage, RENDER_DISTANCE);
         }
 
         @Override
@@ -59,15 +64,26 @@ public class Game implements ILogic {
                 render.init();
                 window.setCursorCaptured(true);
 
-                // Génère le monde autour du point de départ
-                chunkManager.loadAround(0, 0);
+                // {x, y, z, yaw, pitch} de la dernière partie, ou null
+                float[] saved = storage.loadPlayer();
+                float startX = saved != null ? saved[0] : 0.5f;
+                float startZ = saved != null ? saved[2] : 0.5f;
 
-                // Apparition sur le bloc le plus haut en (0, 0)
-                int y = Chunk.HEIGHT - 1;
-                while (y > 0 && !Block.isSolid(world.getBlock(0, y, 0))) {
-                        y--;
+                // Charge (ou génère) le monde autour du point de départ
+                chunkManager.loadAround(startX, startZ);
+
+                if (saved != null) {
+                        player.setSpawn(saved[0], saved[1], saved[2]);
+                        Vector3f rot = camera.getRotation();
+                        camera.moveRotation(saved[4] - rot.x, saved[3] - rot.y, 0);
+                } else {
+                        // Première partie : apparition sur le bloc le plus haut en (0, 0)
+                        int y = Chunk.HEIGHT - 1;
+                        while (y > 0 && !Block.isSolid(world.getBlock(0, y, 0))) {
+                                y--;
+                        }
+                        player.setSpawn(0.5f, y + 1f, 0.5f);
                 }
-                player.setSpawn(0.5f, y + 1f, 0.5f);
                 syncCamera();
         }
 
@@ -186,6 +202,12 @@ public class Game implements ILogic {
 
         @Override
         public void cleanup() {
+                // Sauvegarde du monde et du joueur avant de tout libérer
+                chunkManager.saveAll();
+                Vector3f pos = player.getPosition();
+                Vector3f rot = camera.getRotation();
+                storage.savePlayer(new float[]{pos.x, pos.y, pos.z, rot.y, rot.x});
+
                 render.cleanup();
         }
 }

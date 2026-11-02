@@ -81,6 +81,7 @@ public class World {
                 int lx = Math.floorMod(x, Chunk.SIZE);
                 int lz = Math.floorMod(z, Chunk.SIZE);
                 chunk.set(lx, y, lz, id);
+                chunk.setModified(true);
 
                 // Bloc au bord : le chunk voisin doit être redessiné aussi
                 if (lx == 0) {

@@ -4,11 +4,14 @@ public class Chunk {
 
         public static final int SIZE = 16;
         public static final int HEIGHT = 64;
+        public static final int VOLUME = SIZE * HEIGHT * SIZE;
 
         private final int chunkX;
         private final int chunkZ;
-        private final byte[] blocks = new byte[SIZE * HEIGHT * SIZE];
+        private final byte[] blocks = new byte[VOLUME];
         private boolean dirty = true;
+        // Vrai si le joueur a modifié un bloc depuis le dernier chargement ou la dernière sauvegarde
+        private boolean modified = false;
 
         public Chunk(int chunkX, int chunkZ) {
                 this.chunkX = chunkX;
@@ -34,6 +37,17 @@ public class Chunk {
                 }
         }
 
+        public byte[] getBlocks() {
+                return blocks;
+        }
+
+        // Remplace tout le contenu (chargement depuis le disque)
+        public void setBlocks(byte[] data) {
+                System.arraycopy(data, 0, blocks, 0, VOLUME);
+                dirty = true;
+                modified = false;
+        }
+
         public int getChunkX() {
                 return chunkX;
         }
@@ -56,5 +70,13 @@ public class Chunk {
 
         public void setDirty(boolean dirty) {
                 this.dirty = dirty;
+        }
+
+        public boolean isModified() {
+                return modified;
+        }
+
+        public void setModified(boolean modified) {
+                this.modified = modified;
         }
 }

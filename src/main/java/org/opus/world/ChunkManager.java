@@ -9,12 +9,14 @@ public class ChunkManager {
 
         private final World world;
         private final WorldGenerator generator;
+        private final WorldStorage storage;
         private final int loadRadius;
         private final List<Chunk> toRemove = new ArrayList<>();
 
-        public ChunkManager(World world, WorldGenerator generator, int renderDistance) {
+        public ChunkManager(World world, WorldGenerator generator, WorldStorage storage, int renderDistance) {
                 this.world = world;
                 this.generator = generator;
+                this.storage = storage;
                 // Un anneau de plus que ce qui est affiché : un chunk n'est dessiné que si ses 4 voisins existent
                 this.loadRadius = renderDistance + 1;
         }
@@ -23,9 +25,26 @@ public class ChunkManager {
                 return Math.floorDiv((int) Math.floor(worldCoord), Chunk.SIZE);
         }
 
+        // Charge depuis le disque si le chunk a été sauvegardé, sinon le génère
         private void generate(int cx, int cz) {
                 Chunk chunk = world.createChunk(cx, cz);
-                generator.generate(chunk);
+                if (!storage.loadChunk(chunk)) {
+                        generator.generate(chunk);
+                }
+        }
+
+        private void saveIfModified(Chunk chunk) {
+                if (chunk.isModified()) {
+                        storage.saveChunk(chunk);
+                        chunk.setModified(false);
+                }
+        }
+
+        // Sauvegarde tous les chunks modifiés (à la fermeture du jeu)
+        public void saveAll() {
+                for (Chunk chunk : world.getChunks()) {
+                        saveIfModified(chunk);
+                }
         }
 
         // Charge tout autour d'un point, sans limite (au démarrage)
@@ -58,6 +77,7 @@ public class ChunkManager {
                         }
                 }
                 for (Chunk chunk : toRemove) {
+                        saveIfModified(chunk);
                         world.removeChunk(chunk);
                 }
 
